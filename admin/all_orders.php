@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<?php
+include("../connection/connect.php");
+error_reporting(0);
+session_start();
+
+?>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
+    <title>All Orders</title>
+    <link href="css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="css/helper.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    
+
+</head>
+
+<body>
+   
+<?php   include("header.php"); ?>
+<div class="container-fluid">
+                <div class="row">
+<div style="overflow-y: scroll;border-right:2px solid orange;" class="col-sm-2" >
+  <?php include("sidebar.php"); ?>
+</div>
+                        <div class="col-sm-10">      
+                        
+                       
+                    <div class="col-lg-12">
+                        <div class="card card-outline-primary">
+                            <div class="card-header">
+                                <h4 class="m-b-0 text-white" style="font-size:12px">All Orders</h4>
+                            </div>
+                             
+                                <div class="table-responsive m-t-40">
+								<table id="myTable" class="table table-bordered table-striped">
+    <thead style="font-size:12px">
+        <tr>
+            <th>First Name</th>
+			<th>Last Name</th>
+			<th>Phone</th>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Receipt</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Reg-Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $sql = "SELECT users.*, users_orders.* FROM users INNER JOIN users_orders ON users.u_id=users_orders.u_id ";
+        $query = mysqli_query($db, $sql);
+
+        if (!mysqli_num_rows($query) > 0) {
+            echo '<td colspan="8"><center>No Orders</center></td>';
+        } else {
+            while ($rows = mysqli_fetch_array($query)) {
+                $receiptImagePath = '../receipts/' . $rows['receipt'];
+                ?>
+                <tr>
+                    <td><?php echo $rows['f_name']; ?></td>
+					<td><?php echo $rows['l_name']; ?></td>
+					<td><?php echo $rows['phone']; ?></td>
+                    <td><?php echo $rows['title']; ?></td>
+                    <td><?php echo $rows['quantity']; ?></td>
+                    <td>ETB <?php echo $rows['price']; ?></td>
+                    <td>
+                        <?php
+                        if (!empty($rows['receipt']) && is_file($receiptImagePath)) {
+                            echo '<a href="' . $receiptImagePath . '" target="_blank">View Receipt</a>';
+                        } else {
+                            if (empty($rows['receipt'])) {
+                                echo 'No Receipt (Receipt column is empty)';
+                            } else {
+                                if (!file_exists($receiptImagePath)) {
+                                    echo 'No Receipt (File not found: ' . $receiptImagePath . ')';
+                                } else {
+                                    echo 'No Receipt (Unknown issue)';
+                                }
+                            }
+                        }
+                        ?>
+                    </td>
+                    <td><?php echo $rows['address']; ?></td>
+                    <td>
+                        <?php
+                        $status = $rows['status'];
+                        if ($status == "" or $status == "NULL") {
+                            echo '<button type="button" class="btn btn-info"><span class="fa fa-bars"  aria-hidden="true"></span>new order</button>';
+                        } elseif ($status == "in process") {
+                            echo '<button type="button" class="btn btn-warning"><span class="fa fa-cog fa-spin"  aria-hidden="true"></span> On The Way!</button>';
+                        } elseif ($status == "closed") {
+                            echo '<button type="button" class="btn btn-primary"><span class="fa fa-check-circle" aria-hidden="true"></span> Delivered</button>';
+                        } elseif ($status == "rejected") {
+                            echo '<button type="button" class="btn btn-danger"><i class="fa fa-close"></i> Cancelled</button>';
+                        }
+                        ?>
+                    </td>
+                    <td><?php echo $rows['date']; ?></td>
+                    <td>
+                        <a href="delete_orders.php?order_del=<?php echo $rows['o_id']; ?>" onclick="return confirm('Are you sure?');" class="btn btn-danger btn-flat btn-addon btn-xs m-b-10"><i class="fa fa-trash-o" style="font-size:16px"></i></a>
+                        <a href="view_order.php?user_upd=<?php echo $rows['o_id']; ?>" class="btn btn-info btn-flat btn-addon btn-sm m-b-10 m-l-5"><i class="fa fa-edit"></i></a>
+                    </td>
+                </tr>
+                <?php
+            }
+        }
+        ?>
+    </tbody>
+</table>
+
+
+                                </div>
+                            </div>
+                        </div>
+						 </div>
+                      
+                            </div>
+                        </div>
+                    </div>
+                </div>
+         
+            </div>
+ 
+		
+            <footer class="footer"> © 2023 - Online Food Ordering System </footer>
+    
+        </div>
+   
+    </div>
+    
+    <script src="js/lib/jquery/jquery.min.js"></script>
+    <script src="js/lib/bootstrap/js/popper.min.js"></script>
+    <script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/jquery.slimscroll.js"></script>
+    <script src="js/sidebarmenu.js"></script>
+    <script src="js/lib/sticky-kit-master/dist/sticky-kit.min.js"></script>
+    <script src="js/custom.min.js"></script>
+    <script src="js/lib/datatables/datatables.min.js"></script>
+    <script src="js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js"></script>
+    <script src="js/lib/datatables/cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+    <script src="js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+    <script src="js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+    <script src="js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js"></script>
+    
+</body>
+
+</html>
